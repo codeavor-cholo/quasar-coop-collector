@@ -581,18 +581,48 @@ export default {
     computed: {
         ...mapGetters('subModules', ['genTransactionID', 'genORNo', 'currencyToNumber']),
         getIncludeOperatorPaymentTotal () {
-            if(this.isIncludeOperator){
-                return this.currencyToNumber(this.mf2) +this.currencyToNumber(this.ss2) +this.currencyToNumber(this.sd2) +this.currencyToNumber(this.other2) + this.currencyToNumber(this.returnOtherSum2)
-            } else {
-                return 0
-            }
-            
+            return this.currencyToNumber(this.mf2) +this.currencyToNumber(this.ss2) +this.currencyToNumber(this.sd2) +this.currencyToNumber(this.other2) + this.currencyToNumber(this.returnOtherSum2)            
                 // this.currencyToNumber(this.includeFee.Advances)
         },
         returnModel2Data(){
             try {
                 if(this.model2 !== null){
-                    return this.model2
+                    console.log(this.model2,'returnModel2Data')
+                    let bill = this.model2
+
+                    if(bill.billType == 'loans'){
+                        const loanID = bill.CashReleaseTrackingID
+                        const memberID = bill.MemberID
+                        const billDate = bill.timestamp.toDate()
+                        let transactions = this.Transactions.filter(a=>{
+                            return a.MemberID == memberID && a.AdvancesAmount !== 0 && a.AdvancesAmount !== undefined && a.timestamp.toDate() > billDate
+                        })
+
+                        let getAmount = []
+                        transactions.forEach(a=>{
+                            a.Advances.forEach(b=>{
+                                if(b.trackID == loanID){
+                                    getAmount.push(b)
+                                }
+                            })
+                        })
+                    
+                        let getAmountSum = this.$lodash.sumBy(getAmount,a=>{
+                            return parseFloat(a.paidAmount)
+                        })
+                        console.log(transactions,'trans')
+                        console.log(getAmount,'getAmount')
+                        console.log(getAmountSum,'sum')
+
+                        if(getAmount.length > 0){
+                            bill.paymentStatus = 'Partial Payment'
+                            bill.billPaidAmount =  getAmountSum
+                        }
+
+                        console.log(bill,'bill')
+                    }
+
+                    return bill
                 } else {
                     return {
                         trackingNumber: '',

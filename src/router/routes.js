@@ -1,12 +1,20 @@
 
 const routes = [
   {
-    path: '/',
+    path: '/account',
     component: () => import('layouts/MainLayout.vue'),
     children: [
       { path: '', component: () => import('pages/Index.vue') },
-      { path: '/addpayment', component: () => import('pages/AddPayment.vue') }
+      { path: '/addpayment', component: () => import('pages/AddPayment.vue') },
+      { path: '/monitor', component: () => import('pages/MonitorMembers.vue') }
     ]
+  },
+  {
+    path: '/',
+    component: () => import('layouts/NoLayout.vue'),
+    children: [
+      { path: '', component: () => import('pages/Login.vue') },
+    ],
   }
 ]
 

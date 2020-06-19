@@ -103,6 +103,7 @@ module.exports = function (/* ctx */) {
         'QBtn',
         'QIcon',
         'QList',
+        'QBadge',
         'QItem',
         'QItemSection',
         'QItemLabel',
@@ -139,6 +140,7 @@ module.exports = function (/* ctx */) {
         'QSelect',
         'QField',
         'QCheckbox',
+        'QExpansionItem'
       ],
 
       directives: [

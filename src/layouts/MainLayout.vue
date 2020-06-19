@@ -11,7 +11,7 @@
           </q-avatar>
           <span style="font-size:.8em" class="q-pl-sm">New GSIS Cooperative</span>
         </q-toolbar-title>
-        <q-btn color="white" flat icon="settings" dense @click="signOut"/>
+        <q-btn color="white" flat icon="exit_to_app" dense @click="signOut"/>
       </q-toolbar>
     </q-header>
 
@@ -77,9 +77,9 @@
           no-caps
           dense
         >
-          <q-route-tab name="mails" icon="home" label="Home" class="tabs1" to="/account"/>
+          <q-route-tab name="mails" icon="home" label="Home" class="tabs1" to="/"/>
           <q-route-tab name="movies" icon="payment" label="Payment" class="tabs1" to="/addpayment"/>
-          <q-route-tab name="alarms" icon="people" label="Members" class="tabs1" to="/notifications"/>
+          <q-route-tab name="alarms" icon="people" label="Members" class="tabs1" to="/monitor"/>
           <q-tab name="menu" icon="menu" label="Menu" class="tabs1" @click="left = !left"/>
         </q-tabs>
     </q-footer>
@@ -154,7 +154,7 @@ export default {
       }).onOk(()=>{
         firebaseAuth.signOut()
           .then(() => {
-            this.$router.push('/')
+
           })
       })
     }
