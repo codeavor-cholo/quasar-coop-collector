@@ -468,7 +468,7 @@
     </q-page>
 </template>
 <script>
-import { firebaseDb, firebaseSto, firefirestore, Auth2 } from 'boot/firebase';
+import { firebaseDb, firebaseSto, firefirestore, Auth2,firebaseAuth } from 'boot/firebase';
 
 import Vue from "vue";
 import money from 'v-money'
@@ -543,7 +543,18 @@ export default {
             toPayAdvancesAmount: [],
             AdvanceOption: 'daily',
             billPaymentView: false,
+            uid: ''
         }
+    },
+    created(){
+        let self = this
+        firebaseAuth.onAuthStateChanged(function(user) {
+            
+            if (user) {
+                let gg = {...user}
+                self.uid = gg.uid
+            }
+        })
     },
     firestore(){
         return {
@@ -1330,7 +1341,8 @@ export default {
                 Total: this.returnBillTotal,
                 AmountPaid: parseFloat(this.amountPaidBills),  
                 TrackingNumber: this.trackingNumber, 
-                timestamp: firefirestore.FieldValue.serverTimestamp()         
+                timestamp: firefirestore.FieldValue.serverTimestamp(),
+                staffID: this.uid          
             }
             let smsAmount = this.returnBillTotal
             let remainingBalance = 0
@@ -1508,7 +1520,8 @@ export default {
             Total: this.returnTotalAmount - this.getIncludeOperatorPaymentTotal,
             AmountPaid: Number(this.amountPaid),
             jeepneyDetails: this.jeepneyDetails !== null ? this.getUnitDetails(this.jeepneyDetails) : null,
-            timestamp: firefirestore.FieldValue.serverTimestamp()
+            timestamp: firefirestore.FieldValue.serverTimestamp(),
+            staffID: this.uid 
         }
 
         if(this.trackingNumber !== ''){
@@ -1594,6 +1607,7 @@ export default {
                 SharedTotal: this.operator ? this.returnTotalAmount : null,
                 isPaidByDriver: true,
                 timestamp: firefirestore.FieldValue.serverTimestamp(),
+                staffID: this.uid, 
                 AmountPaid: this.getIncludeOperatorPaymentTotal,
                 jeepneyDetails: this.jeepneyDetails !== null ? this.getUnitDetails(this.jeepneyDetails) : null,
               }

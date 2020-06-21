@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "gsis-coop"
+  },
+  "targets": {
+    "gsis-coop": {
+      "hosting": {
+        "collector": [
+          "gsis-collector"
+        ]
+      }
+    }
+  }
+}
