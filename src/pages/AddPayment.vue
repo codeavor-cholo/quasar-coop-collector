@@ -580,6 +580,9 @@ export default {
             // has data
             this.TransactionID = ++data[0].TransactionID
             this.OrNo = ++data[0].OrNo
+
+            console.log(this.TransactionID,this.OrNo)
+
           } else {
             // empty Transactions
             var transacIdFormat = 100000
@@ -1517,7 +1520,7 @@ export default {
             } : null,
             // paidForOperator: null,
             SharedTotal: this.operator ? this.returnTotalAmount : null,
-            Total: this.returnTotalAmount - this.getIncludeOperatorPaymentTotal,
+            Total: this.operator ? this.returnTotalAmount - this.getIncludeOperatorPaymentTotal : this.returnTotalAmount,
             AmountPaid: Number(this.amountPaid),
             jeepneyDetails: this.jeepneyDetails !== null ? this.getUnitDetails(this.jeepneyDetails) : null,
             timestamp: firefirestore.FieldValue.serverTimestamp(),

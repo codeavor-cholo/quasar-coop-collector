@@ -89,7 +89,7 @@ export default {
                     var errorMessage = error.message;
                     console.log(errorMessage)
                   });
-                    self.$router.push('/account')
+                    self.$router.push('/collections')
 
               })
               .catch(err =>{

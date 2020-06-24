@@ -16,25 +16,28 @@
             <q-list separator>
                 <q-expansion-item
                     group="somegroup"
-                    icon="explore"
                     :label="`${member.FirstName} ${member.LastName} - ${member['.key']}`"
                     :label-lines="2"
                     header-class="text-grey-10"
-                    v-for="member in returnMemberWithLatestPayment" :key="member['.key']" 
+                    v-for="member in filteredItems" :key="member['.key']" 
+                    :caption="member.LatestTransactionDate !== 0 ? 'Last Transaction - '+$moment(member.LatestTransactionDate.toDate()).fromNow() : ''"
+                    
                 >
-                <q-item>
+                <q-separator spaced />
+                <q-item-label header class="bg-grey-1">Latest Transactions</q-item-label>                
+                <q-item v-for="(t,i) in member.LatestTransactions" :key="t['.key']" class="bg-grey-1" v-show="i < 5">
                     <q-item-section>
-                    <q-item-label><b>{{member.LatestTransactionType}}</b> - OR#.{{member.LatestTransactionOrNo}}</q-item-label>
+                    <q-item-label><b>{{t.LatestTransactionType}}</b> - OR#.{{t.LatestTransactionOrNo}}</q-item-label>
                     <q-item-label caption>
-                        <span v-show="member.LatestMF" class="q-mr-sm">MF: ₱{{member.LatestMF}}</span>
-                        <span v-show="member.LatestMF" class="q-mr-sm">SC: ₱{{member.LatestSC}}</span>
-                        <span v-show="member.LatestSavings" class="q-mr-sm">Savings: ₱{{member.LatestSavings}}</span>
+                        <span v-show="t.LatestMF" class="q-mr-sm">MF: ₱{{t.LatestMF}}</span>
+                        <span v-show="t.LatestMF" class="q-mr-sm">SC: ₱{{t.LatestSC}}</span>
+                        <span v-show="t.LatestSavings" class="q-mr-sm">Savings: ₱{{t.LatestSavings}}</span>
                     </q-item-label>
                     </q-item-section>
-<!-- 
+
                     <q-item-section side top>
-                    <q-badge label="10k" />
-                    </q-item-section> -->
+                        <q-item-label caption>{{$moment(t.LatestTransactionDate.toDate()).format('LL')}}</q-item-label>
+                    </q-item-section>
                 </q-item>   
                 </q-expansion-item>             
             </q-list>
@@ -59,22 +62,37 @@ export default {
         }
     },
     computed:{
+        filteredItems() {
+            return this.returnMemberWithLatestPayment.filter(item => {
+                let nameID = `${item['.key']}${item.FirstName}${item.LastName}`
+                return nameID.toLowerCase().indexOf(this.search.toLowerCase()) > -1
+            })
+        },
         returnMemberWithLatestPayment(){
             try{
                 let all = this.MemberData
                 let withLatest = []
                 all.forEach(a=>{
                     let latest = this.getLatestTransaction(a['.key'])
-                    if(this.getLatestTransaction(a['.key']) !== undefined){
-                        a.LatestTransaction = latest
-                        a.LatestTransactionDate = latest.timestamp
-                        a.LatestTransactionAmount = latest.Total
-                        a.LatestTransactionType = latest.TransactionType,
-                        a.LatestTransactionID = latest.TransactionID,
-                        a.LatestTransactionOrNo = latest.OrNo,
-                        a.LatestMF = latest.ManagementFee !== undefined ? latest.ManagementFee : 0
-                        a.LatestSC = latest.ShareCapital !== undefined ? latest.ShareCapital : 0
-                        a.LatestSavings = latest.SavingsDeposit !== undefined ? latest.SavingsDeposit : 0
+                    if(this.getLatestTransaction(a['.key']) !== undefined && latest.length > 0){
+                        a.LatestTransactions = []
+                        latest.forEach(s=>{
+                            s.LatestTransaction = s
+                            s.LatestTransactionDate = s.timestamp
+                            s.LatestTransactionAmount = s.Total
+                            s.LatestTransactionType = s.TransactionType,
+                            s.LatestTransactionID = s.TransactionID,
+                            s.LatestTransactionOrNo = s.OrNo,
+                            s.LatestMF = s.ManagementFee !== undefined ? s.ManagementFee : 0
+                            s.LatestSC = s.ShareCapital !== undefined ? s.ShareCapital : 0
+                            s.LatestSavings = s.SavingsDeposit !== undefined ? s.SavingsDeposit : 0
+                            a.LatestTransactions.push(s)
+                        })
+                        let first = {...this.$lodash.first(latest)}
+                        a.LatestTransactionDate = first.timestamp
+                        withLatest.push(a)
+                    } else {
+                        a.LatestTransactionDate = 0
                         withLatest.push(a)
                     }
                 })
@@ -98,7 +116,7 @@ export default {
 
             let latest = this.$lodash.orderBy(transactions,q=>{
                 return q.timestamp.toDate()
-            },'desc')[0]
+            },'desc')
 
             return latest
         }

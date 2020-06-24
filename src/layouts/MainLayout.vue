@@ -77,7 +77,7 @@
           no-caps
           dense
         >
-          <q-route-tab name="mails" icon="home" label="Home" class="tabs1" to="/"/>
+          <q-route-tab name="mails" icon="money" label="Collections" class="tabs1" to="/collections"/>
           <q-route-tab name="movies" icon="payment" label="Payment" class="tabs1" to="/addpayment"/>
           <q-route-tab name="alarms" icon="people" label="Members" class="tabs1" to="/monitor"/>
           <q-tab name="menu" icon="menu" label="Menu" class="tabs1" @click="left = !left"/>
