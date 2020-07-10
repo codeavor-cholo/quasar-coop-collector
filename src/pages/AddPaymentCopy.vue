@@ -545,7 +545,8 @@ export default {
             billPaymentView: false,
             uid: ''
         }
-    },
+    },  
+    props: ['memberIDs'],
     created(){
         let self = this
         firebaseAuth.onAuthStateChanged(function(user) {
@@ -553,19 +554,23 @@ export default {
             if (user) {
                 let gg = {...user}
                 self.uid = gg.uid
+                
             }
         })
+
+        
+
     },
     firestore(){
         return {
             Transactions: firebaseDb.collection('Transactions'),
             MemberData: firebaseDb.collection('MemberData'),
+            InitialData: firebaseDb.collection('MemberData').doc(this.memberIDs),
             PayTrackers: firebaseDb.collection('PayTrackers'),
             BillingTrackers: firebaseDb.collection('BillingTrackers'),
             OtherPayments: firebaseDb.collection('OtherPayments'),
             FixedPayments: firebaseDb.collection('FixedPayments'),
             JeepneyData: firebaseDb.collection('JeepneyData'),
-            
             ManagementFeeDriver: firebaseDb.collection('FixedPayments').doc('ManagementFeeDriver'),
             ManagementFeeOperator: firebaseDb.collection('FixedPayments').doc('ManagementFeeOperator'),
             MembershipFee: firebaseDb.collection('FixedPayments').doc('MembershipFee'),
@@ -580,7 +585,7 @@ export default {
             // has data
             this.TransactionID = ++data[0].TransactionID
             this.OrNo = ++data[0].OrNo
-
+            this.changeMemberDetails({id: this.memberIDs,reason:'paynow'})
             console.log(this.TransactionID,this.OrNo)
 
           } else {
@@ -589,6 +594,7 @@ export default {
             var ORFormat = 1000000
             this.TransactionID = transacIdFormat
             this.OrNo = ORFormat
+            this.changeMemberDetails({id: this.memberIDs,reason:'paynow'})
           }
         })
     },
@@ -771,7 +777,7 @@ export default {
             console.log('jeep data',map)
             return map
           } catch (error) {
-            console.log(error,'mapUnitsOfMemberv')
+            console.log()
             return []
           }
       },
@@ -993,6 +999,13 @@ export default {
           if(this.returnChange == 'INSUFFICIENT AMOUNT !') return true
           if(this.MDetails.isNewMember == false && this.jeepneyDetails == null) return true
           return false
+      },
+      returnInitialData(){
+          try{
+              return this.InitialData
+          } catch(er){
+              console.log(er,'returnInitialData')
+          }
       }
     },
     methods: {
@@ -1241,9 +1254,19 @@ export default {
         },
         changeMemberDetails(val){
             
-            let member = this.MemberData.filter(d => {
-            return d['.key'] === val.id
-            })[0]
+            let member = null
+            if(val.reason !== undefined){
+                let slf = this
+                member = slf.returnInitialData
+                console.log(val.reason)
+                console.log(slf.InitialData,'yeah')
+            } else {
+                member = this.MemberData.filter(d => {
+                return d['.key'] === val.id
+                })[0]
+            }
+
+            console.log(member,'member data')
 
             console.log(val.trackingNumber,'val.trackingNumber')
 
@@ -1258,7 +1281,7 @@ export default {
                 }
             }
 
-            if(member.Advances !== 0 || member.Advances !== undefined){
+            if(member.Advances !== undefined || member.Advances !== 0 ){
                 this.hasCA = true
                 this.AdvanceSelect = this.returnMapActiveLoans.map(a=>{return a.value})
                 let sum = this.$lodash.sumBy(member.activeLoans,a=>{return parseInt(a.DailyCharge)})
@@ -1698,7 +1721,7 @@ export default {
                     'Access-Control-Allow-Origin': '*',
             }
             let message = 'SMS Reciept for the payment of P'+ amount + '.00 on '+ TodayDate +'. PaymentID# '+ trackID.toUpperCase()
-            let apinumber = 3
+            let apinumber = 2
 
             let data = 'number=' + number + '&' + 'message=' + message + '&' + 'apinumber=' + apinumber
             console.log(data,'data sent')
