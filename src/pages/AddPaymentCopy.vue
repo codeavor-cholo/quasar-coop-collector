@@ -362,7 +362,7 @@
                             @filter="filterFn3"
                             @clear="jeepneyDetails = null"
                             :disable="defaultUnitDisabled"
-                            v-show="MDetails.defaultUnit == null"
+                            v-show="MDetails.defaultUnit == null && jeepneyDetails == null"
                         >
                             <template v-slot:selected-item="scope">
                                 <q-chip
@@ -543,10 +543,11 @@ export default {
             toPayAdvancesAmount: [],
             AdvanceOption: 'daily',
             billPaymentView: false,
-            uid: ''
+            uid: '',
+            idsURl : this.memberIDs.split('&')
         }
     },  
-    props: ['memberIDs'],
+    props: ['memberIDs','plateNumbers'],
     created(){
         let self = this
         firebaseAuth.onAuthStateChanged(function(user) {
@@ -560,15 +561,18 @@ export default {
 
         
 
+        
+
     },
     firestore(){
         return {
             Transactions: firebaseDb.collection('Transactions'),
             MemberData: firebaseDb.collection('MemberData'),
-            InitialData: firebaseDb.collection('MemberData').doc(this.memberIDs),
+            InitialData: firebaseDb.collection('MemberData').doc(this.idsURl[0]),
             PayTrackers: firebaseDb.collection('PayTrackers'),
             BillingTrackers: firebaseDb.collection('BillingTrackers'),
             OtherPayments: firebaseDb.collection('OtherPayments'),
+            PayLater: firebaseDb.collection('PayLater'),
             FixedPayments: firebaseDb.collection('FixedPayments'),
             JeepneyData: firebaseDb.collection('JeepneyData'),
             ManagementFeeDriver: firebaseDb.collection('FixedPayments').doc('ManagementFeeDriver'),
@@ -585,7 +589,11 @@ export default {
             // has data
             this.TransactionID = ++data[0].TransactionID
             this.OrNo = ++data[0].OrNo
-            this.changeMemberDetails({id: this.memberIDs,reason:'paynow'})
+            let ids = this.memberIDs.split('&')
+
+
+
+            this.changeMemberDetails({id: ids[0],reason:'paynow',plateNumbers: ids[1]})
             console.log(this.TransactionID,this.OrNo)
 
           } else {
@@ -594,7 +602,11 @@ export default {
             var ORFormat = 1000000
             this.TransactionID = transacIdFormat
             this.OrNo = ORFormat
-            this.changeMemberDetails({id: this.memberIDs,reason:'paynow'})
+            let ids = this.memberIDs.split('&')
+
+
+
+            this.changeMemberDetails({id: ids[0],reason:'paynow',plateNumbers: ids[1]})
           }
         })
     },
@@ -749,7 +761,8 @@ export default {
                 id = this.model !== null ? this.model : this.model2
             } else {
                 let ops = this.MemberData.filter(a=>{
-                    return a['.key'] == this.memberIDs
+                    let ids = this.memberIDs.split('&')
+                    return a['.key'] == ids[0]
                 })[0]
 
                 console.log(ops,'ops')
@@ -1253,7 +1266,7 @@ export default {
             this.model2 = null
         },
         changeMemberDetails(val){
-            
+
             let member = null
             if(val.reason !== undefined){
                 let slf = this
@@ -1291,19 +1304,32 @@ export default {
                 this.hasCA = false
             }
 
-            if(member.defaultUnit !== undefined){
-                let jeep = member.defaultUnit
-                this.MDetails.defaultUnit = jeep.PlateNumber
-                this.jeepneyDetails = jeep.PlateNumber
-                this.defaultUnitDisabled = true
-                this.defaultUnit = true
-                console.log(this.jeepneyDetails,'jeep default')
-            } else {
-                this.MDetails.defaultUnit = null
+            if(val.plateNumbers !== 'NONE' && member.defaultUnit == undefined){
+                // this.MDetails.defaultUnit = this.plateNumbers
+                
+                this.MDetails.defaultUnit =  null
+                this.jeepneyDetails = val.plateNumbers    
                 this.defaultUnitDisabled = false
-                this.defaultUnit = false
-                this.jeepneyDetails = null
+                this.defaultUnit = true          
+                
+
+            } else {
+                if(member.defaultUnit !== undefined){
+                    let jeep = member.defaultUnit
+                    this.MDetails.defaultUnit = jeep.PlateNumber
+                    this.jeepneyDetails = jeep.PlateNumber
+                    this.defaultUnitDisabled = true
+                    this.defaultUnit = true
+                    console.log(this.jeepneyDetails,'jeep default')
+                } else {
+                    this.MDetails.defaultUnit = null
+                    this.defaultUnitDisabled = false
+                    this.defaultUnit = false
+                    this.jeepneyDetails = null
+                }
             }
+
+
 
             if(val !== null){
                 this.MDetails.memberID = val.id
@@ -1573,6 +1599,8 @@ export default {
             payment.TrackingNumber = this.trackingNumber
         }
 
+        this.payLaterCheckerDeleter(payment)
+
         firebaseDb.collection('Transactions').add(payment)
           .then(async (doc) => {
             this.$forceUpdate()
@@ -1656,6 +1684,10 @@ export default {
                 AmountPaid: this.getIncludeOperatorPaymentTotal,
                 jeepneyDetails: this.jeepneyDetails !== null ? this.getUnitDetails(this.jeepneyDetails) : null,
               }
+
+              this.payLaterCheckerDeleter(includeOperatorPayment)  
+
+
               firebaseDb.collection('Transactions').add(includeOperatorPayment)
                 .then(async (doc) => {
                   await firebaseDb.collection('MemberData').doc(includeOperatorPayment.MemberID).update({
@@ -1721,7 +1753,7 @@ export default {
                     'Access-Control-Allow-Origin': '*',
             }
             let message = 'SMS Reciept for the payment of P'+ amount + '.00 on '+ TodayDate +'. PaymentID# '+ trackID.toUpperCase()
-            let apinumber = 2
+            let apinumber = 4
 
             let data = 'number=' + number + '&' + 'message=' + message + '&' + 'apinumber=' + apinumber
             console.log(data,'data sent')
@@ -1751,7 +1783,7 @@ export default {
               return 0
           }
       },
-      getMinValue(value){
+      getMinValue(value){ 
           console.log(value,'value')
           if(value.length == 0){
               this.toPayAdvancesAmount = []
@@ -1816,6 +1848,29 @@ export default {
           }
 
 
+      },
+      payLaterCheckerDeleter(data){
+          try {
+              let check = data
+              let today = date.formatDate(new Date(),'MM-DD-YYYY')
+              let filter = this.$lodash.filter(this.PayLater,a=>{
+                  let payDate = date.formatDate(a.timestamp.toDate(),'MM-DD-YYYY')
+                  return a.memberID == check.MemberID && a.plateNumber == check.jeepneyDetails.PlateNumber && today == payDate
+              })[0]
+
+              if(filter !== undefined){
+                console.log(filter,'data to delete')
+                firebaseDb.collection('PayLater').doc(filter['.key']).delete()
+                .then(()=>{
+                   console.log('sucess deletion of data in pay later')
+                })
+              } else {
+                  console.log('no record in pay later to delete')
+              }
+
+          } catch (error) {
+              console.log(error,'payLaterCheckerDeleter')
+          }
       }
 
     }

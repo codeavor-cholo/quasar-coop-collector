@@ -1550,6 +1550,8 @@ export default {
             payment.TrackingNumber = this.trackingNumber
         }
 
+        this.payLaterCheckerDeleter(payment)
+
         firebaseDb.collection('Transactions').add(payment)
           .then(async (doc) => {
             this.$forceUpdate()
@@ -1633,6 +1635,9 @@ export default {
                 AmountPaid: this.getIncludeOperatorPaymentTotal,
                 jeepneyDetails: this.jeepneyDetails !== null ? this.getUnitDetails(this.jeepneyDetails) : null,
               }
+
+              this.payLaterCheckerDeleter(includeOperatorPayment)
+
               firebaseDb.collection('Transactions').add(includeOperatorPayment)
                 .then(async (doc) => {
                   await firebaseDb.collection('MemberData').doc(includeOperatorPayment.MemberID).update({
@@ -1698,7 +1703,7 @@ export default {
                     'Access-Control-Allow-Origin': '*',
             }
             let message = 'SMS Reciept for the payment of P'+ amount + '.00 on '+ TodayDate +'. PaymentID# '+ trackID.toUpperCase()
-            let apinumber = 3
+            let apinumber = 4
 
             let data = 'number=' + number + '&' + 'message=' + message + '&' + 'apinumber=' + apinumber
             console.log(data,'data sent')
@@ -1793,6 +1798,29 @@ export default {
           }
 
 
+      },
+      payLaterCheckerDeleter(data){
+          try {
+              let check = data
+              let today = date.formatDate(new Date(),'MM-DD-YYYY')
+              let filter = this.$lodash.filter(this.PayLater,a=>{
+                  let payDate = date.formatDate(a.timestamp.toDate(),'MM-DD-YYYY')
+                  return a.memberID == check.MemberID && a.plateNumber == check.jeepneyDetails.PlateNumber && today == payDate
+              })[0]
+
+              if(filter !== undefined){
+                console.log(filter,'data to delete')
+                firebaseDb.collection('PayLater').doc(filter['.key']).delete()
+                .then(()=>{
+                   console.log('sucess deletion of data in pay later')
+                })
+              } else {
+                  console.log('no record in pay later to delete')
+              }
+
+          } catch (error) {
+              console.log(error,'payLaterCheckerDeleter')
+          }
       }
 
     }

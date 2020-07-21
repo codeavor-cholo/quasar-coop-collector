@@ -28,35 +28,11 @@
             <div class="text-caption text-uppercase">driver / operator</div>
           </q-item-section>
         </q-item>
-        <q-item clickable v-ripple to="/viewTransations/savings" active-class="text-teal bg-grey-2">
+        <q-item clickable v-ripple active-class="text-teal bg-grey-2" to="/attendance">
           <q-item-section avatar>
-            <q-icon color="teal" name="account_balance" />
+            <q-icon color="teal" name="brightness_low" />
           </q-item-section>
-          <q-item-section>Savings</q-item-section>
-        </q-item>
-        <q-item clickable v-ripple to="/viewTransations/cashadvance" active-class="text-teal bg-grey-2">
-          <q-item-section avatar>
-            <q-icon color="teal" name="money" />
-          </q-item-section>
-          <q-item-section>Cash Advance</q-item-section>
-        </q-item>
-        <q-item clickable v-ripple to="/viewTransations/all" active-class="text-teal bg-grey-2">
-          <q-item-section avatar>
-            <q-icon color="teal" name="payment" />
-          </q-item-section>
-          <q-item-section>Transactions</q-item-section>
-        </q-item>
-        <q-item clickable v-ripple active-class="text-teal bg-grey-2" to="/drivers">
-          <q-item-section avatar>
-            <q-icon color="teal" name="people" />
-          </q-item-section>
-          <q-item-section>Drivers</q-item-section>
-        </q-item>
-        <q-item clickable v-ripple active-class="text-teal bg-grey-2">
-          <q-item-section avatar>
-            <q-icon color="teal" name="chat" />
-          </q-item-section>
-          <q-item-section>Chat Administrator</q-item-section>
+          <q-item-section>Daily Monitoring</q-item-section>
         </q-item>
         <q-item clickable v-ripple active-class="text-teal bg-grey-2" to="/login">
           <q-item-section avatar>

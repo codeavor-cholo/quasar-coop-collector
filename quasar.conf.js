@@ -140,7 +140,8 @@ module.exports = function (/* ctx */) {
         'QSelect',
         'QField',
         'QCheckbox',
-        'QExpansionItem'
+        'QExpansionItem',
+        'QBtnToggle'
       ],
 
       directives: [
