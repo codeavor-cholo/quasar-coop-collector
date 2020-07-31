@@ -230,7 +230,9 @@
       </q-dialog>
 
       <q-page-sticky position="bottom-right" :offset="[18, 18]">
-        <q-btn round color="teal" icon="qr_code" size="lg" @click="scanForAttendance = true,scanner = true"/>
+        <!-- scanForAttendance = true,scanner = true -->
+        <q-btn round color="teal" icon="qr_code" size="lg" @click="scanQROpen" v-if="$q.platform.is.cordova"/>
+        <q-btn round color="teal" icon="qr_code" size="lg" @click="scanForAttendance = true,scanner = true " v-else/>
 
       </q-page-sticky>
 
@@ -249,11 +251,23 @@ import { mapGetters } from 'vuex'
 Vue.use(money, {precision: 4})
 
 Vue.use(VueQrcodeReader);
+var readyDevice = false
+
+document.addEventListener('deviceready', () => {
+  // it's only now that we are sure
+  // the event has triggered
+  console.log('deviceReadyNow')
+  readyDevice = true
+}, false)
+
+
 
 export default {
   name: 'PageIndex',
   data(){
     return {
+      // deviceReady: false,
+      cordovaQRresult: null,
       clicked: false,
       clickForAttendance: false,
       clickPlate: null,
@@ -298,9 +312,6 @@ export default {
         let operators = this.MemberData.filter(a=>{
           return a.Designation == 'Operator'
         })
-
-
-
 
 
         operators.forEach(a=>{
@@ -710,6 +721,9 @@ export default {
             return 0
         }
     },
+    scanCordova(){
+
+    },
     checkIfThereIsUnit(id){
         if(this.MDetails.memberID == '') return false
 
@@ -726,7 +740,49 @@ export default {
         } else {
             return false
         }
-    }
+    },
+    scanQROpen(){
+      var resultQR = null
+      let self = this
+    cordova.plugins.barcodeScanner.scan(
+        function (result) {
+            // alert("We got a barcode\n" +
+            //       "Result: " + result.text + "\n" +
+            //       "Format: " + result.format + "\n" +
+            //       "Cancelled: " + result.cancelled);
+            resultQR = result.text
+            self.cordovaQRresult = result.text
+            // self.$q.notify({
+            //   icon: 'info',
+            //   color: 'positive',
+            //   message: result.text
+            // })    
+            self.scanForAttendance = true
+            self.onDecode(result.text)
+
+        },
+        function (error) {
+            alert("Scanning failed: " + error);
+        },
+        {
+            preferFrontCamera : false, // iOS and Android
+            showFlipCameraButton : false, // iOS and Android
+            showTorchButton : false, // iOS and Android
+            torchOn: false, // Android, launch with the torch switched on (if available)
+            saveHistory: false, // Android, save scan history (default false)
+            prompt : "Place a barcode inside the scan area", // Android
+            resultDisplayDuration: 500, // Android, display scanned text for X ms. 0 suppresses it entirely, default 1500
+            formats : "QR_CODE", // default: all but PDF_417 and RSS_EXPANDED
+            orientation : "portrait", // Android only (portrait|landscape), default unset so it rotates with the device
+            disableAnimations : true, // iOS
+            disableSuccessBeep: false // iOS and Android
+        }
+    );
+
+
+
+
+    },
   }
 }
 </script>

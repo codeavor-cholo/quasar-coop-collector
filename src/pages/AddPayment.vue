@@ -57,7 +57,8 @@
                             <qrcode-stream class="full-width" style="width: 200px; height: 200px;" @decode="onDecode"></qrcode-stream>
                         </div>
                     </div>
-                    <q-btn class="q-my-md full-width" color="grey-10" :icon="scanner == true ? 'close' : 'qr_code'" :label="scanner == true ? 'close qr' : 'scan qr'" size="lg" @click="scanner=!scanner" :disable="model2 != null"/>     
+                    <q-btn class="q-my-md full-width" color="grey-10" :icon="'qr_code'" :label="'scan qr'" size="lg" @click="scanQROpen" :disable="model2 != null" v-if="$q.platform.is.cordova"/>    
+                    <q-btn class="q-my-md full-width" color="grey-10" :icon="scanner == true ? 'close' : 'qr_code'" :label="scanner == true ? 'close qr' : 'scan qr'" size="lg" @click="scanner=!scanner" :disable="model2 != null" v-else/>    
                     <div class="text-h6 text-center full-width q-my-md">Search Tracking Number</div>         
                     <q-select 
                         :disable="model != null"
@@ -574,7 +575,7 @@ export default {
     },
     async mounted() {
         // this.TransactionID = await this.genTransactionID
-      this.$binding('lastTransaction', firebaseDb.collection('Transactions').orderBy('timestamp', 'desc').limit(1))
+      this.$binding('lastTransaction', firebaseDb.collection('Transactions').orderBy('TransactionID', 'desc').limit(1))
         .then(data => {
           if (data.length != 0) {
             // has data
@@ -1395,7 +1396,8 @@ export default {
 
             let totalAmountPaid = parseFloat(this.amountPaidBills)
             if(bill.paymentStatus == 'Partial Payment' || status == 'Partial Payment'){
-                totalAmountPaid = totalAmountPaid + parseFloat(bill.billPaidAmount)
+                let additional = bill.billPaidAmount !== undefined ? parseFloat(bill.billPaidAmount) : 0
+                totalAmountPaid = parseFloat(vm.amount) + additional
                 if(totalAmountPaid > this.returnBillTotal){
                     totalAmountPaid = this.returnBillTotal
                 }
@@ -1821,7 +1823,49 @@ export default {
           } catch (error) {
               console.log(error,'payLaterCheckerDeleter')
           }
-      }
+      },
+        scanQROpen(){
+        var resultQR = null
+        let self = this
+        cordova.plugins.barcodeScanner.scan(
+            function (result) {
+                // alert("We got a barcode\n" +
+                //       "Result: " + result.text + "\n" +
+                //       "Format: " + result.format + "\n" +
+                //       "Cancelled: " + result.cancelled);
+                resultQR = result.text
+                // self.cordovaQRresult = result.text
+                // self.$q.notify({
+                //   icon: 'info',
+                //   color: 'positive',
+                //   message: result.text
+                // })    
+                // self.scanForAttendance = true
+                self.onDecode(result.text)
+
+            },
+            function (error) {
+                alert("Scanning failed: " + error);
+            },
+            {
+                preferFrontCamera : false, // iOS and Android
+                showFlipCameraButton : false, // iOS and Android
+                showTorchButton : false, // iOS and Android
+                torchOn: false, // Android, launch with the torch switched on (if available)
+                saveHistory: false, // Android, save scan history (default false)
+                prompt : "Place a barcode inside the scan area", // Android
+                resultDisplayDuration: 500, // Android, display scanned text for X ms. 0 suppresses it entirely, default 1500
+                formats : "QR_CODE", // default: all but PDF_417 and RSS_EXPANDED
+                orientation : "portrait", // Android only (portrait|landscape), default unset so it rotates with the device
+                disableAnimations : true, // iOS
+                disableSuccessBeep: false // iOS and Android
+            }
+        );
+
+
+
+
+    },
 
     }
 }

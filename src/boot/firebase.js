@@ -49,4 +49,15 @@ var firebaseConfig = {
 
 Vue.prototype.$firebase = firebase
 
+
+
  export { firebaseAuth, firebaseDb, firebaseSto, firefirestore, firebaseApp }
+
+ export default async ({ Vue }) => {
+  // something to do
+  Vue.prototype.$firebaseSys = firebase
+  Vue.prototype.$firestoreApp = firebase.firestore()
+  Vue.prototype.$auth = firebaseAuth
+  Vue.use(VueFirestore)
+  Vue.use(firebase)
+}

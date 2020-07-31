@@ -38,14 +38,19 @@ export default {
             email:'collector1',
             password: '123456',
             login: false,
+            Users: []
         }
     },
-    firestore () {
-        return {
-            // Collection  
-            Users: firebaseDb.collection('Users'),
-        }
+    mounted() {
+            this.$binding('Users', this.$firestoreApp.collection('Users'))
+            // this.$binding('MemberData', this.$firestoreApp.collection('MemberData'))
     },
+    // firestore () {
+    //     return {
+    //         // Collection  
+    //         Users: firebaseDb.collection('Users'),
+    //     }
+    // },
     created(){
         setTimeout(()=>{
             this.login = true
@@ -57,7 +62,7 @@ export default {
             let self = this
             let firstLogin = false
 
-            firebaseAuth.signInWithEmailAndPassword(emailAdd, this.password)
+            this.$auth.signInWithEmailAndPassword(emailAdd, this.password)
               .then(result => {
               console.log(result, 'result')
 
@@ -72,7 +77,7 @@ export default {
             //       firstLogin = true
             //   }
 
-              firebaseAuth.setPersistence(this.$firebase.auth.Auth.Persistence.LOCAL)
+              this.$auth.setPersistence(this.$firebase.auth.Auth.Persistence.LOCAL)
                   .then(function() {
                     console.log('setPersistence!')
                     // Existing and future Auth states are now persisted in the current
@@ -80,7 +85,7 @@ export default {
                     // if a user forgets to sign out.
                     // ...
                     // New sign-in will be persisted with session persistence.
-                    return firebaseAuth.signInWithEmailAndPassword(emailAdd, self.password);
+                    return this.$auth.signInWithEmailAndPassword(emailAdd, self.password);
                   })
                   .catch(function(error) {
                     // Handle Errors here.

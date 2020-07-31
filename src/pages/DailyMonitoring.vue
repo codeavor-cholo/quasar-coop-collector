@@ -133,6 +133,10 @@ Vue.use(money, {precision: 4})
 
 Vue.use(VueQrcodeReader);
 
+
+
+
+
 export default {
     data(){
         return{
@@ -411,7 +415,8 @@ export default {
             } else {
                 return false
             }
-        }
+        },
+
     }
 }
 </script>
