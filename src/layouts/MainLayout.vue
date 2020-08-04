@@ -85,6 +85,7 @@ export default {
     }
   },
   created(){
+    // firebaseAuth.signOut()
     let self = this
     firebaseAuth.onAuthStateChanged(function(user) {
         

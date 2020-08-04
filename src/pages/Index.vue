@@ -275,7 +275,7 @@ export default {
       scanner: false,
       scanForAttendance: false,
       search: '',
-      today: date.formatDate(new Date(),'MM/DD/YYYY'),
+      today: new Date(),
       filterDateDialog: false,
       MDetails:{
           memberID: '',
@@ -435,7 +435,7 @@ export default {
             this.MDetails.isNewMember = member.isNewMember
             this.MDetails.operator = member.Operator
             this.MDetails.phoneNumber = member.Phone
-
+            
             
 
 
@@ -480,6 +480,7 @@ export default {
     onDecode (decodedString) {
         console.log(decodedString,'on decode')
         this.changeMemberDetails({id: decodedString})
+        this.clickPlate = 'NONE'
         this.scanner = false
     },
     getDrivers(id,plateKey){
@@ -559,7 +560,7 @@ export default {
         return uniq.length
     },
     cancelFilter(){
-      this.today = date.formatDate(new Date(),'MM/DD/YYYY')
+      this.today = new Date()
     },
     dateOptions(dates){
       console.log(dates,'dates')

@@ -2,7 +2,7 @@
   "name": "coop-quasar-collector",
   "version": "0.0.1",
   "description": "-",
-  "productName": "GSIS Cooperative Collector App",
+  "productName": "GSIS Collector App",
   "cordovaId": "org.cordova.quasar.app",
   "capacitorId": "",
   "author": "Cholz Del Rosario <chomigz12@gmail.com>",

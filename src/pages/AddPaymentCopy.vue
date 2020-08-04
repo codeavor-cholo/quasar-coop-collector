@@ -546,7 +546,8 @@ export default {
             AdvanceOption: 'daily',
             billPaymentView: false,
             uid: '',
-            idsURl : this.memberIDs.split('&')
+            idsURl : this.memberIDs.split('&'),
+            onDecodeID: null
         }
     },  
     props: ['memberIDs','plateNumbers'],
@@ -762,9 +763,18 @@ export default {
             if(this.model !== null || this.model2 !== null){
                 id = this.model !== null ? this.model : this.model2
             } else {
+                let sumthing = null
+                if(this.memberIDs !== undefined && this.onDecodeID == null){
+                   let val = this.memberIDs.split('&')
+                   sumthing = val[0]
+                } else {
+                    sumthing = this.onDecodeID
+                }
+
+                console.log(sumthing,'sumthing')
+
                 let ops = this.MemberData.filter(a=>{
-                    let ids = this.memberIDs.split('&')
-                    return a['.key'] == ids[0]
+                    return a['.key'] == sumthing
                 })[0]
 
                 console.log(ops,'ops')
@@ -966,6 +976,12 @@ export default {
       },
       returnSelectedMember(){
           try {
+            if(this.onDecodeID !== null){
+                return this.MemberData.filter(d => {
+                    return d['.key'] === this.onDecodeID
+                })[0]                
+            }
+
             if(this.model == null){
                 return this.MemberData.filter(d => {
                     return d['.key'] === this.model2.id
@@ -1093,9 +1109,11 @@ export default {
             console.log(decodedString,'on decode')
             this.changeMemberDetails({id: decodedString})
             this.scanner = false
+            this.onDecodeID = decodedString
         },
         clearForm(){
             console.log('back click')
+            this.onDecodeID = null
             this.operator= false
             this.ifDriver= false
             this.model= null
