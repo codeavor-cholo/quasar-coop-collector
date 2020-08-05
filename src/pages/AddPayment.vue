@@ -963,6 +963,14 @@ export default {
                     return d['.key'] === this.onDecodeID
                 })[0]                
             }
+
+            if(this.memberIDs !== undefined){
+                let val = this.memberIDs.split('&')
+                let sumthing = val[0]
+                return this.MemberData.filter(d => {
+                    return d['.key'] === sumthing
+                })[0]  
+            }
             
             if(this.model == null){
                 return this.MemberData.filter(d => {

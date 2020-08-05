@@ -220,7 +220,7 @@
             </q-banner> 
           </q-card-section>
           <q-card-actions align="center" vertical v-show="!clicked">
-            <q-btn flat label="Report Violation" color="red" v-close-popup />
+            <!-- <q-btn flat label="Report Violation" color="red" v-close-popup /> -->
             <q-btn flat label="Pay Later" color="warning" v-close-popup @click="payLater(MDetails.memberID)" v-show="checkIfPaidForLaterToday(MDetails.memberID,clickPlate) == false"/>
             <q-btn flat label="Pay Now" color="teal" v-close-popup @click="payNow(MDetails.memberID)"/>
             <q-btn flat label="Cancel" color="grey" v-close-popup/>
