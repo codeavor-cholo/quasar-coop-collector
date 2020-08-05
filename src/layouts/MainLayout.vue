@@ -20,12 +20,12 @@
         <q-item class="bg-grey-2 q-pa-md" clickable v-ripple to="/profile" active-class="text-teal">
           <q-item-section avatar>
             <q-avatar color="teal" class="text-white">
-              M
+              {{memberid.charAt(0)}}
             </q-avatar>
           </q-item-section>
           <q-item-section>
-            <div class="text-weight-bold">MEMBER NAME</div>
-            <div class="text-caption text-uppercase">driver / operator</div>
+            <div class="text-weight-bold">{{memberid}}</div>
+            <div class="text-caption text-uppercase">{{getPosition(memberid)}}</div>
           </q-item-section>
         </q-item>
         <q-item clickable v-ripple active-class="text-teal bg-grey-2" to="/attendance">
@@ -82,6 +82,7 @@ export default {
   firestore () {
     return {
       MemberData: firebaseDb.collection('MemberData'),
+      DashboardUsers: firebaseDb.collection('DashboardUsers'),
     }
   },
   created(){
@@ -118,6 +119,11 @@ export default {
     }
   },
   methods:{
+    getPosition(id){
+      return this.DashboardUsers.filter(a=>{
+        return a.Username.toLowerCase() == id.toLowerCase()
+      })[0].Position
+    },
     signOut(){
       this.$q.dialog({
           title: `Are you sure you want to logout?`,

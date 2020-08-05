@@ -461,7 +461,7 @@
 
                 <q-stepper-navigation class="text-center">
                     <q-btn color="grey-10" label="Yes" @click="step = 1,clearForm()" />
-                    <q-btn flat  color="grey-10" label="see payment list" class="q-ml-sm" :to="'/admin/allpayment'"/>
+                    <q-btn flat  color="grey-10" label="see payment list" class="q-ml-sm" :to="'/monitor'"/>
                 </q-stepper-navigation>            
             </q-step>
 
