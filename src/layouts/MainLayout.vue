@@ -17,7 +17,7 @@
 
     <q-drawer v-model="left" side="right" bordered>
       <q-list>
-        <q-item class="bg-grey-2 q-pa-md" clickable v-ripple to="/profile" active-class="text-teal">
+        <q-item class="bg-grey-2 q-pa-md" active-class="text-teal">
           <q-item-section avatar>
             <q-avatar color="teal" class="text-white">
               {{memberid.charAt(0)}}
@@ -25,6 +25,7 @@
           </q-item-section>
           <q-item-section>
             <div class="text-weight-bold">{{memberid}}</div>
+            <div class="text-caption text-capitalize">{{getName(memberid)}}</div>
             <div class="text-caption text-uppercase">{{getPosition(memberid)}}</div>
           </q-item-section>
         </q-item>
@@ -123,6 +124,13 @@ export default {
       return this.DashboardUsers.filter(a=>{
         return a.Username.toLowerCase() == id.toLowerCase()
       })[0].Position
+    },
+    getName(id){
+      let user = this.DashboardUsers.filter(a=>{
+        return a.Username.toLowerCase() == id.toLowerCase()
+      })[0]
+
+      return `${user.FirstName} ${user.LastName}`
     },
     signOut(){
       this.$q.dialog({

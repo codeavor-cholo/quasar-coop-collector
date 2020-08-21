@@ -187,7 +187,7 @@
                     <div class="text-caption q-pl-md q-pb-sm">Select advances payment option:</div>
                     <q-option-group
                         v-model="AdvanceOption"
-                        :options="[{label:'All Daily Charges',value:'daily'},{label:'Specific Loan Payment',value:'specific'}]"
+                        :options="[{label:'All Daily Charges',value:'daily'},{label:'Specific Cash Advance Payment',value:'specific'}]"
                         color="teal"
                         type="radio"
                         inline=""
@@ -964,7 +964,7 @@ export default {
                 })[0]                
             }
 
-            if(this.memberIDs !== undefined){
+            if(this.memberIDs !== undefined && this.memberIDs !== undefined){
                 let val = this.memberIDs.split('&')
                 let sumthing = val[0]
                 return this.MemberData.filter(d => {

@@ -106,9 +106,9 @@
             toggle-color="teal"
             :options="[
                 {label: 'All', value: 'All'},
-                {label: 'No Show', value: 'NoShow'},
+                {label: 'Unpaid', value: 'NoShow'},
                 {label: 'Paid', value: 'Paid'},
-                {label: 'Unpaid', value: 'UnPaid'}
+                {label: 'Pay Later', value: 'UnPaid'}
             
             ]"
         />
@@ -168,7 +168,8 @@ export default {
             JeepneyData: firebaseDb.collection('JeepneyData'),   
             ManagementFeeDriver: firebaseDb.collection('FixedPayments').doc('ManagementFeeDriver'),
             ManagementFeeOperator: firebaseDb.collection('FixedPayments').doc('ManagementFeeOperator'),
-            ShareOfStocks: firebaseDb.collection('FixedPayments').doc('ShareOfStocks')    
+            ShareOfStocks: firebaseDb.collection('FixedPayments').doc('ShareOfStocks'),
+            ZMemberInactiveness: firebaseDb.collection('FixedPayments').doc('ZMemberInactiveness'),       
         }
     },
     computed:{
@@ -208,21 +209,24 @@ export default {
                 console.log(members,'members')
                 if(this.model == 'UnPaid'){
                     return members.filter(a=>{
-                        return a.StatusOfPaymentToday == 'UnPaid'
+                        return a.StatusOfPaymentToday == 'UnPaid' && this.checkIfActive(a['.key']) == 'active'
                     })
                 } 
                 else if(this.model == 'Paid')
                 {
                     return members.filter(a=>{
-                        return a.StatusOfPaymentToday == 'Paid'
+                        return a.StatusOfPaymentToday == 'Paid' && this.checkIfActive(a['.key']) == 'active'
                     })
                 } 
                 else if(this.model == 'NoShow'){
                     return members.filter(a=>{
-                        return a.StatusOfPaymentToday == 'NoShow'
+                        return a.StatusOfPaymentToday == 'NoShow' && this.checkIfActive(a['.key']) == 'active'
                     })                   
                 } else { 
-                    return this.$lodash.orderBy(members,'StatusOfPaymentToday','desc')
+                let filter = members.filter(a=>{
+                  return this.checkIfActive(a['.key']) == 'active'
+                })
+                return this.$lodash.orderBy(filter,'StatusOfPaymentToday','desc')
                 }
 
             } catch (error) {
@@ -231,6 +235,24 @@ export default {
         }
     },
     methods:{
+        checkIfActive(memberID){
+        let today = new Date()
+        let monthsBase = date.subtractFromDate(today, {month: this.ZMemberInactiveness.amount})
+
+        let transactions = this.Transactions.filter(a=>{
+            return a.MemberID == memberID && a.timestamp.toDate() >= monthsBase && a.timestamp.toDate() <= today
+        })
+
+
+        if(transactions.length == 0){
+            // console.log(memberID + ' ' + transactions.length+ 'payments',)
+            return 'inactive'
+        } else {
+            // console.log(memberID + ' ' + transactions.length+ 'payments',)
+            return 'active'
+        }
+
+        },
         dateOptions(dates){
             // console.log(dates,'dates')
             return new Date(dates) <= new Date()
