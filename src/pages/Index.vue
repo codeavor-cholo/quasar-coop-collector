@@ -620,7 +620,12 @@ export default {
       }
 
       if(this.clickPlate == 'NONE' || this.clickPlate == null){
-
+        let units = null
+        if(this.MDetails.Designation == 'Driver'){
+            units = this.MDetails.Operator.MemberID
+        } else {
+            units = this.MDetails.memberID
+        }
         this.$q.dialog({
           title: 'Jeepney Plate Number',
           message: 'Choose a jeep / unit:',
@@ -628,7 +633,7 @@ export default {
             type: 'radio',
             model: 'opt1',
             // inline: true
-            items: this.getUnitsOfOperator(this.MDetails.operator.MemberID)
+            items: this.getUnitsOfOperator(units)
           },
           cancel: true,
           persistent: true
