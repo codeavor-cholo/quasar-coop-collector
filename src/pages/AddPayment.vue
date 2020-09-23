@@ -140,7 +140,7 @@
                         </q-list>
                     </div>    
                 <q-stepper-navigation class="text-right">
-                    <q-btn @click="$refs.stepper.next()" color="teal" icon-right="arrow_right" :label="step === 2 ?'Finish' : 'Continue'" :disable="MDetails.memberID == ''"/>
+                    <q-btn @click="clickChecker()" color="teal" icon-right="arrow_right" :label="step === 2 ?'Finish' : 'Continue'" :disable="MDetails.memberID == ''"/>
                 </q-stepper-navigation>                    
             </q-step>
             <q-step
@@ -681,11 +681,12 @@ export default {
             fullName: full,
             id: d['.key'],
             designation: d.Designation,
-            OperatorID: opID
+            OperatorID: opID,
+            resigned: d.resigned == undefined ? false : true
           }
         })
         console.log(opt,'opt')
-        return opt
+        return opt.filter(a=>{return a.resigned == false})
         // Object.freeze(options)
       },
       membersIdOptionsTracking () {
@@ -1090,9 +1091,17 @@ export default {
         },
         onDecode (decodedString) {
             console.log(decodedString,'on decode')
-            this.changeMemberDetails({id: decodedString})
-            this.scanner = false
-            this.onDecodeID = decodedString
+            if(this.MemberData.filter(a=>{return a['.key'] == decodedString && a.resigned == true}).length > 0){
+                this.$q.notify({
+                    icon: 'info',
+                    color: 'negative',
+                    message: 'Member is resigned! Choose another QRCODE'
+                }) 
+            } else {
+                this.changeMemberDetails({id: decodedString})
+                this.scanner = false
+                this.onDecodeID = decodedString
+            }
         },
         clearForm(){
             console.log('back click')
@@ -1770,6 +1779,7 @@ export default {
           }
       },
       getPaidAmount(id){
+          if(this.saveAdvancesData.filter(a=>{return a.trackID == id}).length == 0) return 0
           return this.saveAdvancesData.filter(a=>{
               return a.trackID == id
           })[0].paidAmount
@@ -1850,6 +1860,29 @@ export default {
 
           } catch (error) {
               console.log(error,'payLaterCheckerDeleter')
+          }
+      },
+      clickChecker(){
+          console.log(this.MDetails,'mdetails clickChecker')
+          let member = this.MDetails
+          if(member.memberDesignation === 'Operator'){
+              this.step = 2
+          } else {
+              if(member.isNewMember){
+                  this.step = 2
+              } else {
+                  if(member.defaultUnit === null){
+                        this.$q.dialog({
+                            title: `NO UNIT ASSIGNED!`,
+                            message: 'Please contact your operator.',
+                            persistent: true
+                        }).onOk(() => {
+                            this.step = 1
+                        })                          
+                  } else {
+                      this.step = 2
+                  }
+              }
           }
       },
         scanQROpen(){

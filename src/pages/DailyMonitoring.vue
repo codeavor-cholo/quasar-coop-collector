@@ -87,8 +87,11 @@
           </q-card-section>
           <q-card-actions align="center" vertical v-if="!clicked && checkIfThereIsUnit(MDetails.memberID) == true">
             <!-- <q-btn flat label="Report Violation" color="red" v-close-popup /> -->
+            <span v-show="returnShowOptions(MDetails,noUnitReally ? 'NONE' : '')">
             <q-btn flat label="Pay Later" color="warning" v-close-popup @click="payLater(MDetails.memberID)" v-show="MDetails.StatusOfPaymentToday !== 'UnPaid' && MDetails.StatusOfPaymentToday !== 'Paid'"/>
+            
             <q-btn flat label="Pay Now" color="teal" v-close-popup @click="payNow(MDetails.memberID)" v-show="MDetails.StatusOfPaymentToday !== 'Paid'"/>
+            </span>
             <q-btn flat label="Cancel" color="grey" v-close-popup/>
             <!-- <q-btn flat label="Pay Now (Include Operator)" color="teal" v-close-popup @click="payNow(MDetails.memberID)" v-show="clickDriver !== null"/> -->
           </q-card-actions>
@@ -158,6 +161,7 @@ export default {
                 StatusOfPaymentToday: 'NoShow'
             },
             ifAllPaid: false,
+            noUnitReally: false
         }
     },
     firestore(){
@@ -184,7 +188,7 @@ export default {
 
 
                 let members = this.MemberData.filter(a=>{
-                    return a.isNewMember == false
+                    return a.isNewMember == false && a.resigned !== true
                 })
 
                 members.forEach(a=>{
@@ -284,6 +288,12 @@ export default {
                 this.MDetails.operator = member.Operator
                 this.MDetails.phoneNumber = member.Phone
                 this.MDetails.StatusOfPaymentToday = member.StatusOfPaymentToday
+
+                if(member.defaultUnit === undefined){
+                this.noUnitReally = true
+                } else {
+                this.noUnitReally = false
+                }
             }
         },
         clickListForAttendance(id,plate = null){
@@ -438,6 +448,10 @@ export default {
                 return false
             }
         },
+        returnShowOptions(selected,click){
+        if(selected.memberDesignation === 'Driver' && click === 'NONE') return false
+        return true
+        }
 
     }
 }

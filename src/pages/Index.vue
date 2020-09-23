@@ -155,8 +155,10 @@
           <q-card-actions align="center" vertical v-if="!scanner && checkIfThereIsUnit(MDetails.memberID) == true">
             
             <!-- <q-btn flat label="Report Violation" color="red" v-close-popup /> -->
+            <span v-show="showOptionsModal(MDetails,noUnitReally ? 'NONE' : '')">
             <q-btn flat label="Pay Later" color="warning" v-close-popup @click="payLater(MDetails.memberID)" v-show="checkIfPaidForLaterToday(MDetails.memberID,clickPlate) == false"/>
              <q-btn flat label="Pay Now" color="teal" v-close-popup @click="payNow(MDetails.memberID)"/>
+            </span>
              <q-btn flat label="Cancel" color="grey" v-close-popup/>
           </q-card-actions>
           <q-card-actions align="center" vertical v-else>
@@ -221,8 +223,10 @@
           </q-card-section>
           <q-card-actions align="center" vertical v-show="!clicked">
             <!-- <q-btn flat label="Report Violation" color="red" v-close-popup /> -->
+            <span v-show="showOptionsModal(MDetails,clickPlate)">
             <q-btn flat label="Pay Later" color="warning" v-close-popup @click="payLater(MDetails.memberID)" v-show="checkIfPaidForLaterToday(MDetails.memberID,clickPlate) == false"/>
             <q-btn flat label="Pay Now" color="teal" v-close-popup @click="payNow(MDetails.memberID)"/>
+            </span>
             <q-btn flat label="Cancel" color="grey" v-close-popup/>
             <!-- <q-btn flat label="Pay Now (Include Operator)" color="teal" v-close-popup @click="payNow(MDetails.memberID)" v-show="clickDriver !== null"/> -->
           </q-card-actions>
@@ -266,6 +270,7 @@ export default {
   name: 'PageIndex',
   data(){
     return {
+      noUnitReally: false,
       // deviceReady: false,
       cordovaQRresult: null,
       clicked: false,
@@ -413,6 +418,12 @@ export default {
         // } else {
         //     this.hasCA = false
         // }
+
+        if(member.defaultUnit === undefined){
+          this.noUnitReally = true
+        } else {
+           this.noUnitReally = false
+        }
 
         // if(member.defaultUnit !== undefined){
         //     let jeep = member.defaultUnit
@@ -746,6 +757,11 @@ export default {
         } else {
             return false
         }
+    },
+    showOptionsModal(mdetails,click){
+      console.log(mdetails,'showOptionsModal')
+      if(mdetails.memberDesignation === 'Driver' && click === 'NONE') return false
+      return true
     },
     scanQROpen(){
       var resultQR = null
