@@ -16,7 +16,7 @@
     "@firebase/firestore": "^1.15.1",
     "@firebase/storage": "^0.3.35",
     "@quasar/extras": "^1.0.0",
-    "axios": "^0.18.1",
+    "axios": "^0.21.1",
     "quasar": "^1.0.0",
     "sweetalert2": "^9.15.1",
     "v-money": "^0.8.1",
